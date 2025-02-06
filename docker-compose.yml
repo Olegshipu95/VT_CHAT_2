@@ -1,0 +1,12 @@
+services:
+
+  chat-postgres:
+    container_name: chat-postgres
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./init_databases.sql:/docker-entrypoint-initdb.d/init_databases.sql
