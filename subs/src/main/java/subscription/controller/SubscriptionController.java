@@ -7,7 +7,6 @@ import subscription.service.SubscriptionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +23,6 @@ public class SubscriptionController {
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UUID> makeSubscription(@RequestBody @Valid CreateSubRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createSub(request));
     }
@@ -36,14 +34,12 @@ public class SubscriptionController {
     }
 
     @DeleteMapping("/{subId}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteSubscription(@PathVariable UUID subId) {
         service.deleteSub(subId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<SubscriptionResponse>> getSubscriptionsByUserId(@PathVariable UUID userId) {
         List<SubscriptionResponse> subscriptions = service.getSubscriptionsByUserId(userId);
         return ResponseEntity.ok(subscriptions);

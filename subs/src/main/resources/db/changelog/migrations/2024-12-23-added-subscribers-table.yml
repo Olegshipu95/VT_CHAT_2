@@ -4,7 +4,7 @@ databaseChangeLog:
       author: VT-CHAT
       changes:
         - createTable:
-            tableName: subs
+            tableName: subscribers
             ifNotExists: true
             columns:
               - column:
