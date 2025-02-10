@@ -33,9 +33,8 @@ public class UserService {
 
     public Mono<UUID> createAccount(CreateUserAccountRequest request) {
         log.debug("Create an account for: {}", request.name());
-        UUID newId = UUID.randomUUID();
         User newUser = new User(
-                newId,
+                null,
                 request.name(),
                 request.surname(),
                 request.email(),
@@ -44,35 +43,45 @@ public class UserService {
                 request.birthday(),
                 request.logoUrl()
         );
-        return userRepository.save(newUser).then(Mono.just(newId))
+        return userRepository.save(newUser)
+                .map(User::getId)
                 .flatMap(id -> {
                     UsersChats usersChats = new UsersChats();
                     usersChats.setId(UUID.randomUUID());
-                    usersChats.setUserId(newId);
+                    usersChats.setUserId(id);
                     usersChats.setChats(new ArrayList<>());
+
                     return Mono.fromCallable(() -> usersChatsService.save(usersChats))
-                            .thenReturn(newId);
-                }).doOnSuccess(id -> log.info("User with ID: {} has been successfully created.", newId));
+                            .onErrorResume(ex -> {
+                                log.warn("Ошибка при вызове feign-клиента: {}", ex.getMessage());
+                                return Mono.empty(); // Игнорируем ошибку и продолжаем выполнение
+                            })
+                            .thenReturn(id);
+                })
+                .doOnSuccess(id -> log.info("User with ID: {} has been successfully created.", id));
     }
 
     public Mono<UUID> updateAccount(UpdateUserInfoRequest request) {
         log.debug("UPDATE: start for id: {}", request.userId());
-        User updatedUser = new User(
-                        request.userId(),
-                request.name(),
-                request.surname(),
-                request.email(),
-                request.briefDescription(),
-                request.city(),
-                request.birthday(),
-                request.logoUrl()
-        );
 
-        return Mono.just(userRepository.findById(request.userId()))
-                .switchIfEmpty(Mono.error(new UserAccountNotFoundException(request.userId())))
-                .flatMap(existingAccount -> userRepository.save(updatedUser))
-                .map(User::getId);
+        return userRepository.findById(request.userId())  // 1. Ищем пользователя
+                .switchIfEmpty(Mono.error(new UserAccountNotFoundException(request.userId())))  // 2. Если не нашли, выбрасываем ошибку
+                .flatMap(existingUser -> {
+                    // 3. Обновляем только непустые поля
+                    if (request.name() != null) existingUser.setName(request.name());
+                    if (request.surname() != null) existingUser.setSurname(request.surname());
+                    if (request.email() != null) existingUser.setEmail(request.email());
+                    if (request.briefDescription() != null) existingUser.setBriefDescription(request.briefDescription());
+                    if (request.city() != null) existingUser.setCity(request.city());
+                    if (request.birthday() != null) existingUser.setBirthday(request.birthday());
+                    if (request.logoUrl() != null) existingUser.setLogoUrl(request.logoUrl());
+
+                    return userRepository.save(existingUser);  // 4. Сохраняем обновлённого пользователя
+                })
+                .map(User::getId)  // 5. Возвращаем обновлённый ID
+                .doOnSuccess(id -> log.info("User with ID: {} has been successfully updated.", id));
     }
+
 
     public Mono<GetUserInfoResponse> getAccountById(UUID id) {
         log.debug("GET: start for id: {}", id);

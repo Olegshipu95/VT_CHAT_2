@@ -1,10 +1,10 @@
-package user.entity;
+package subscription.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.domain.Persistable;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
-import user.utils.ErrorMessages;
+import subscription.utils.ErrorMessages;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,39 +15,39 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("users")
+@Table(name = "users")
 public class User {
 
     @Id
     @NotNull(message = ErrorMessages.ID_CANNOT_BE_NULL)
-    @Column("id")
+    @Column(name = "id")
     private UUID id;
 
     @NotBlank(message = "Name can't be blank")
-    @Column("name")
+    @Column(name = "name")
     private String name;
 
     @NotBlank(message = "Surname can't be blank")
-    @Column("surname")
+    @Column(name = "surname")
     private String surname;
 
     @NotBlank(message = ErrorMessages.EMAIL_CANNOT_BE_NULL)
-    @Column("email")
+    @Column(name = "email")
     private String email;
 
-    @Column("brief_description")
+    @Column(name = "brief_description")
     private String briefDescription;
 
-    @Column("city")
+    @Column(name = "city")
     private String city;
 
-    @Column("birthday")
+    @Column(name = "birthday")
     private LocalDate birthday;
 
-    @Column("logo_url")
+    @Column(name = "logo_url")
     private String logoUrl;
-
 }
