@@ -1,23 +1,15 @@
- package subscription.service;
+package subscription.service;
 
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import subscription.entity.User;
-import subscription.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Optional;
 import java.util.UUID;
 
-@Slf4j
-@RequiredArgsConstructor
-@Service
-public class UserService {
-    private final UserRepository userRepository;
+@FeignClient(name = "chat-user-cloud")
+public interface UserService {
 
-    public boolean existsById(UUID id) {
-        return userRepository.existsById(id);
-    }
-
+    @GetMapping("/{id}")
+    User findById(@PathVariable UUID uuid);
 }

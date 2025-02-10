@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5435/subscription}
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/subs}
     username: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
 
   liquibase:
-    url: ${DB_URL:jdbc:postgresql://localhost:5435/subscription}
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/subs}
     user: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
 

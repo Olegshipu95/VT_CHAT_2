@@ -1,12 +1,12 @@
 package subscription.service;
 
 
+import feign.FeignException;
 import subscription.dto.subs.request.CreateSubRequest;
 import subscription.dto.subs.response.SubscriptionResponse;
 import subscription.entity.Subscribers;
 import subscription.exception.UserAccountNotFoundException;
 import subscription.repository.SubRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +16,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class SubscriptionService {
     private final UserService userService;
     private final SubRepository subscribersRepository;
+
+    public SubscriptionService(UserService userService, SubRepository subscribersRepository) {
+        this.userService = userService;
+        this.subscribersRepository = subscribersRepository;
+    }
 
     // Метод создания подписки
     @Transactional
@@ -62,13 +66,17 @@ public class SubscriptionService {
     }
 
     private void validateUsersExist(UUID userId, UUID subscribedUserId) {
-        if (!userService.existsById(userId)) {
-            log.info("User ID {} does not exist", userId);
-            throw new UserAccountNotFoundException(userId);
-        }
-        if (!userService.existsById(subscribedUserId)) {
-            log.info("Subscribed User ID {} does not exist", subscribedUserId);
-            throw new UserAccountNotFoundException(subscribedUserId);
+        try {
+            if (userService.findById(userId) != null) {
+                log.info("User ID {} does not exist", userId);
+                throw new UserAccountNotFoundException(userId);
+            }
+            if (userService.findById(subscribedUserId) != null) {
+                log.info("Subscribed User ID {} does not exist", subscribedUserId);
+                throw new UserAccountNotFoundException(subscribedUserId);
+            }
+        } catch (FeignException e){
+            log.warn("Ошибка при вызове Feign-клиента: {}", e.getMessage());
         }
     }
 }
