@@ -1,0 +1,31 @@
+spring:
+
+  r2dbc:
+    url: r2dbc:postgresql://${POSTGRES_HOST:chat-postgres}:${POSTGRES_PORT:5432}/${POSTGRES_DB:news}
+    username: ${POSTGRES_USER:username}
+    password: ${POSTGRES_PASSWORD:password}
+
+  liquibase:
+    enabled: true
+    url: ${NEWS:jdbc:postgresql://chat-postgres:5432/news}
+    user: ${NEWS_DB_USER:username}
+    password: ${NEWS_DB_PASSWORD:password}
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: basic
+      feed:
+        name: ${FEED_NAME:feed}
+        url: ${FEED_URL:feed}
+
+management:
+  endpoints:
+    web.exposure.include: "*"
+  endpoint:
+    health:
+      show-details: always
