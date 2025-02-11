@@ -45,6 +45,7 @@ public class ChatService {
 
     public UUID createChat(CreateChatRequest createChatRequest) {
 
+
         try {
 
             Chat chatForSave = new Chat();
@@ -74,6 +75,7 @@ public class ChatService {
                 chats.add(savedId);
                 usersChatsService.save(usersChats);
             }
+
 
             log.info("Chat with ID: {} has been successfully created.", savedChat.getId());
             return savedChat.getId();
@@ -112,7 +114,9 @@ public class ChatService {
         return result;
     }
 
+
     public ResponseSearchChat getUsersChats(UUID userId, String request, Long pageNumber, Long countChatsOnPage) {
+
         try {
             List<UUID> userChats = usersChatsService.findByUserId(userId).get().getChats();
             List<Chat> listOfChats = chatRepository.findByNameContainingAndIdIn(userChats, request, PageRequest.of(pageNumber.intValue(), countChatsOnPage.intValue())).stream().toList();
