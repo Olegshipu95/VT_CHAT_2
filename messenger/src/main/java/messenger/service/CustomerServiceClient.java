@@ -1,7 +1,8 @@
 package messenger.service;
 
 
-import messenger.dto.customer.response.GetUserInfoResponse;
+
+import messenger.dto.user.response.GetUserInfoResponse;
 import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

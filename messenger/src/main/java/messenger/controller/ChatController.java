@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.DeferredResult;
-import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -36,47 +35,62 @@ public class ChatController {
         this.chatService = aChatService;
     }
 
+
+    @PostMapping("/users")
     public ResponseEntity<?> addUserChats(@RequestBody UsersChats usersChats) {
         try {
+
             return ResponseEntity.status(HttpStatus.OK).body(chatService.addUserChats(usersChats));
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @PostMapping("/chat/start")
+    @PostMapping
     public ResponseEntity<?> createChat(@Valid @RequestBody CreateChatRequest createChatRequest) {
         try {
+
             return ResponseEntity.status(HttpStatus.CREATED).body(chatService.createChat(createChatRequest));
+
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchChat(@Valid @RequestBody SearchChatRequest searchChatRequest) {
+
+    @GetMapping
+    public ResponseEntity<?> getUsersChats(@Valid @RequestBody SearchChatRequest searchChatRequest) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(chatService.searchChat(searchChatRequest.getUserId(), searchChatRequest.getRequest(), searchChatRequest.getPageNumber(), searchChatRequest.getCountChatsOnPage()));
+
+            return ResponseEntity.status(HttpStatus.OK).body(chatService.getUsersChats(searchChatRequest.getUserId(), searchChatRequest.getRequest(), searchChatRequest.getPageNumber(), searchChatRequest.getCountChatsOnPage()));
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @GetMapping("/{chatId}/search")
-    public ResponseEntity<?> searchMessage(@Valid @RequestBody SearchMessageRequest searchMessageRequest) {
+    @GetMapping("/{chatId}")
+    public ResponseEntity<?> getMessage(@Valid @RequestBody SearchMessageRequest searchMessageRequest) {
         try {
+
             return ResponseEntity.status(HttpStatus.OK).body(chatService.searchMessage(searchMessageRequest.getChatId(), searchMessageRequest.getRequest(), searchMessageRequest.getPageNumber(), searchMessageRequest.getCountMessagesOnPage()));
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @DeleteMapping("/chat/{chatId}")
+
+    @DeleteMapping("/{chatId}")
     public ResponseEntity<?> deleteChat(@NotNull(message = ErrorMessages.ID_CANNOT_BE_NULL)
                                         @PathVariable UUID chatId) {
         try {
+
             chatService.deleteChat(chatId);
             return new ResponseEntity<>(HttpStatus.OK);
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

@@ -9,6 +9,6 @@ import user.entity.UsersChats;
 public interface UsersChatsServiceClient {
 
 
-    @PostMapping("/chats/addUserChats")
+    @PostMapping("/chats/users")
     UsersChats save(@RequestBody UsersChats usersChats);
 }
