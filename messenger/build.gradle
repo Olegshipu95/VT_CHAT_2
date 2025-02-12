@@ -41,6 +41,7 @@ dependencies {
     // Spring Cloud
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'io.github.openfeign:feign-jackson:13.5"'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     // Test dependencies
