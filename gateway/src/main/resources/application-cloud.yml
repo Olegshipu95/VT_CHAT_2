@@ -1,9 +1,3 @@
 spring:
   config:
-    import: "configserver:"
-  cloud:
-    config:
-      fail-fast: true
-      discovery:
-        enable: true
-        service-id: chat-config
+    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}/
