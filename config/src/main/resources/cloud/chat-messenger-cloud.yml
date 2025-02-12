@@ -1,12 +1,12 @@
 spring:
   datasource:
-    url: ${FEED_DB_URL:jdbc:postgresql://chat-postgres:5432/feed}
+    url: ${MESSENGER_DB_URL:jdbc:postgresql://chat-postgres:5432/messenger}
     username: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
 
   liquibase:
     enabled: true
-    url: ${FEED_DB_URL:jdbc:postgresql://chat-postgres:5432/feed}
+    url: ${MESSENGER_DB_URL:jdbc:postgresql://chat-postgres:5432/messenger}
     user: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
 

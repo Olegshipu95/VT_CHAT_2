@@ -7,7 +7,7 @@ info:
 
 spring:
   application:
-    name: Subscription
+    name: chat-subs-cloud
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 

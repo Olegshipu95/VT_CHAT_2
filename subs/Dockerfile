@@ -12,6 +12,6 @@ FROM amazoncorretto:17-alpine
 
 WORKDIR /app
 
-COPY --from=build /workspace/build/libs/chat-sub-0.0.1-SNAPSHOT.jar ./chat-sub.jar
+COPY --from=build /workspace/build/libs/*.jar ./chat-sub.jar
 
 ENTRYPOINT ["java", "-jar", "chat-sub.jar"]

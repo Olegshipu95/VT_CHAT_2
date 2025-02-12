@@ -5,6 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: users_chats
+            ifNotExists: true
             columns:
               - column:
                   name: id

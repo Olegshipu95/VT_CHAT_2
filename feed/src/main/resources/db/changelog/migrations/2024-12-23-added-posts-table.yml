@@ -5,6 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: posts
+            ifNotExists: true
             columns:
               - column:
                   name: id

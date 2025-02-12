@@ -5,6 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: messages
+            ifNotExists: true
             columns:
               - column:
                   name: id
