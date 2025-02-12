@@ -1,5 +1,6 @@
 package subscription.controller;
 
+import lombok.RequiredArgsConstructor;
 import subscription.dto.subs.request.CreateSubRequest;
 import subscription.dto.subs.response.SubscriptionResponse;
 import subscription.entity.Subscribers;
@@ -13,14 +14,11 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/subscribe")
 public class SubscriptionController {
 
     private final SubscriptionService service;
-
-    public SubscriptionController(SubscriptionService subscriptionService) {
-        this.service = subscriptionService;
-    }
 
     @PostMapping
     public ResponseEntity<UUID> makeSubscription(@RequestBody @Valid CreateSubRequest request){
@@ -44,7 +42,4 @@ public class SubscriptionController {
         List<SubscriptionResponse> subscriptions = service.getSubscriptionsByUserId(userId);
         return ResponseEntity.ok(subscriptions);
     }
-
-
-
 }

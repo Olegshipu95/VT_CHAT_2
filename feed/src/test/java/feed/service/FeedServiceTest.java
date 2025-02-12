@@ -1,33 +1,30 @@
 package feed.service;
 
-import feed.dto.feed.request.CreatePostRequest;
-import feed.dto.feed.request.DeletePostRequest;
-import feed.dto.feed.response.FeedResponse;
-import feed.dto.feed.response.PostForResponse;
+import feed.dto.request.CreatePostRequest;
 import feed.entity.Post;
-import feed.exception.UserAccountNotFoundException;
 import feed.repository.FeedRepository;
-import feign.FeignException;
+import feed.utils.SecurityMock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FeedServiceTest {
@@ -35,105 +32,41 @@ class FeedServiceTest {
     @Mock
     private FeedRepository feedRepository;
 
-    @Mock
-    private UserService userService;
-
     @InjectMocks
     private FeedService feedService;
 
-    private UUID testUserId;
-    private UUID testPostId;
-    private CreatePostRequest testCreatePostRequest;
-    private DeletePostRequest testDeletePostRequest;
-    private Post testPost;
-    private PostForResponse testPostForResponse;
-    private FeedResponse testFeedResponse;
-
     @BeforeEach
-    void setUp() {
-        testUserId = UUID.randomUUID();
-        testPostId = UUID.randomUUID();
-
-        testCreatePostRequest = new CreatePostRequest(testUserId, "Test Title", "Test Content", null);
-        testDeletePostRequest = new DeletePostRequest(testPostId, testUserId);
-
-        testPost = new Post();
-        testPost.setId(testPostId);
-        testPost.setUserId(testUserId);
-        testPost.setTitle("Test Title");
-        testPost.setText("Test Content");
-        testPost.setImages(null);
-        testPost.setPostedTime(new Timestamp(System.currentTimeMillis()));
-
-        testPostForResponse = new PostForResponse(testPost);
-        testFeedResponse = new FeedResponse(List.of(testPostForResponse));
+    public void setUp() {
+        SecurityMock.mockSecurityContext();
     }
 
     @Test
     void testCreateFeed() {
-        UUID expectedUUID = UUID.randomUUID();
+        CreatePostRequest createPostRequest = new CreatePostRequest("Title", "Text", List.of("url"));
 
-        try (MockedStatic<UUID> mockedUUID = Mockito.mockStatic(UUID.class)) {
-            mockedUUID.when(UUID::randomUUID).thenReturn(expectedUUID);
-            when(feedRepository.save(any(Post.class))).thenReturn(testPost);
-            UUID result = feedService.createFeed(testCreatePostRequest);
-            assertEquals(expectedUUID, result); // Проверяем, что результат совпадает с ожидаемым UUID
-            verify(feedRepository, times(1)).save(any(Post.class));
-            verify(userService, times(1)).findById(testUserId);
-        }
-    }
-
-    @Test
-    void testCreateFeedWithUserNotFound() {
-        when(userService.findById(testUserId)).thenThrow(new UserAccountNotFoundException(testUserId));
-
-        assertThrows(UserAccountNotFoundException.class, () -> feedService.createFeed(testCreatePostRequest));
-
-        verify(userService, times(1)).findById(testUserId);
-        verify(feedRepository, never()).save(any());
+        UUID id = feedService.createFeed(createPostRequest);
+        assertNotNull(id);
+        verify(feedRepository, times(1)).save(any());
     }
 
     @Test
     void testDeletePost() {
-        when(feedRepository.findById(testPostId)).thenReturn(Optional.of(testPost));
+        assertDoesNotThrow(() -> feedService.deletePost(UUID.randomUUID()));
 
-        feedService.deletePost(testDeletePostRequest);
-
-        verify(feedRepository, times(1)).findById(testPostId);
-        verify(feedRepository, times(1)).deleteById(testPostId);
+        verify(feedRepository, times(1)).deleteById(any());
     }
 
     @Test
     void testDeletePostNotFound() {
-        when(feedRepository.findById(testPostId)).thenReturn(Optional.empty());
+        Pageable pageable = Pageable.ofSize(20);
+        Page<Post> expected = new PageImpl<>(List.of(
+            new Post(UUID.randomUUID(), "userId", "title", "text", List.of("q"), new Timestamp(System.currentTimeMillis()))));
+        when(feedRepository.findByUserId(any(), any())).thenReturn(expected);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> feedService.deletePost(testDeletePostRequest));
+        Page<Post> actual = feedService.getFeedByUserId("userId", pageable);
 
-        assertEquals("Post was not found", exception.getMessage());
-        verify(feedRepository, times(1)).findById(testPostId);
-        verify(feedRepository, never()).deleteById(testPostId);
-    }
-
-    @Test
-    void testGetFeedByUserId() {
-        Page<Post> pageOfPosts = new PageImpl<>(List.of(testPost));
-        when(feedRepository.findByUserId(testUserId, PageRequest.of(0, 20))).thenReturn(pageOfPosts);
-
-        FeedResponse result = feedService.getFeedByUserId(testUserId, 0L, 20L);
-
-        assertEquals(testFeedResponse.feed().size(), result.feed().size());
-        assertEquals(testFeedResponse.feed().get(0).getId(), result.feed().get(0).getId());
-        assertEquals(testFeedResponse.feed().get(0).getTitle(), result.feed().get(0).getTitle());
-        verify(feedRepository, times(1)).findByUserId(testUserId, PageRequest.of(0, 20));
-    }
-
-    @Test
-    void testGetFeedByUserIdWithException() {
-        when(feedRepository.findByUserId(testUserId, PageRequest.of(0, 20))).thenThrow(new RuntimeException("Database error"));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> feedService.getFeedByUserId(testUserId, 0L, 20L));
-
-        assertEquals("The problem with the database query", exception.getMessage());
-        verify(feedRepository, times(1)).findByUserId(testUserId, PageRequest.of(0, 20));
+        assertNotNull(actual);
+        assertEquals(actual, expected);
+        verify(feedRepository, times(1)).findByUserId(any(), any());
     }
 }

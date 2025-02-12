@@ -1,9 +1,10 @@
 package subscription.service;
 
+import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import subscription.entity.User;
+import subscription.dto.User;
 
 import java.util.UUID;
 
@@ -11,5 +12,6 @@ import java.util.UUID;
 public interface UserService {
 
     @GetMapping("/{id}")
-    User findById(@PathVariable UUID uuid);
+    @Headers("Content-Type: application/json")
+    User findById(@PathVariable UUID id);
 }

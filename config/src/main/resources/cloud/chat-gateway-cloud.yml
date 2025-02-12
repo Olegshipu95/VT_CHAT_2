@@ -7,42 +7,34 @@ spring:
     urls:
       user: chat-user-cloud
       feed: chat-feed-cloud
-      messenger: chat-messenger-cloud
       subs: chat-subs-cloud
+      messenger: chat-messenger-cloud
 
-resilience4j:
-  circuitbreaker:
-    configs:
-      default:
-        permittedNumberOfCallsInHalfOpenState: 10
-        slowCallDurationThreshold: 10s
-        slowCallRateThreshold: 90
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        minimumNumberOfCalls: 10
-    instances:
-      questionsCircuitBreaker:
-        base-config: default
-      resumeCircuitBreaker:
-        base-config: default
-      analyticCircuitBreaker:
-        base-config: default
-      accountsCircuitBreaker:
-        base-config: default
+#resilience4j:
+#  circuitbreaker:
+#    configs:
+#      default:
+#        permittedNumberOfCallsInHalfOpenState: 10
+#        slowCallDurationThreshold: 10s
+#        slowCallRateThreshold: 90
+#        failureRateThreshold: 50
+#        waitDurationInOpenState: 10s
+#        minimumNumberOfCalls: 10
+#    instances:
+#      questionsCircuitBreaker:
+#        base-config: default
+#      resumeCircuitBreaker:
+#        base-config: default
+#      analyticCircuitBreaker:
+#        base-config: default
+#      accountsCircuitBreaker:
+#        base-config: default
 
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.web: DEBUG
     org.springframework.web.client.RestTemplate: DEBUG
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${EUREKA_SERVER_URL:http://chat-eureka:8761/eureka}
-  instance:
-    preferIpAddress: true
-
 
 management:
   endpoints:

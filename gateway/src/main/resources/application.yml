@@ -1,10 +1,3 @@
-info:
-  app:
-    name: Gateway
-    description: Gateway service
-  team:
-    name: D2 team
-
 spring:
   application:
     name: chat-gateway

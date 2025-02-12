@@ -12,6 +12,6 @@ import java.util.UUID;
 
 @Repository
 public interface FeedRepository extends JpaRepository<Post, UUID> {
-    @Query("SELECT p FROM Post p WHERE p.userId = :userId ORDER BY p.postedTime DESC")
-    Page<Post> findByUserId(@Param("userId") UUID userId, Pageable pageable);
+
+    Page<Post> findByUserId(@Param("userId") String userId, Pageable pageable);
 }

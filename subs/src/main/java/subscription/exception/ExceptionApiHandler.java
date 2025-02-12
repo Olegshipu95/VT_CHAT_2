@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionApiHandler {
 
+
     @ExceptionHandler(UserAccountNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleUserAccountNotFound(UserAccountNotFoundException ex) {
         return handleException(ex);

@@ -25,12 +25,14 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ChatRepository chatRepository;
+
     private final UsersChatsService usersChatsService;
+
     private final MessageService messageService;
 
     private final ConcurrentHashMap<UUID, List<MessageForResponse>> chatMessages = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<UUID, ConcurrentLinkedQueue<DeferredResult<MessageForResponse>>> chatClients = new ConcurrentHashMap<>();
 
+    private final ConcurrentHashMap<UUID, ConcurrentLinkedQueue<DeferredResult<MessageForResponse>>> chatClients = new ConcurrentHashMap<>();
 
     @Autowired
     public ChatService(ChatRepository chatRepository, UsersChatsService usersChatsService, MessageService messageService) {
@@ -44,41 +46,31 @@ public class ChatService {
     }
 
     public UUID createChat(CreateChatRequest createChatRequest) {
-
         try {
-
             Chat chatForSave = new Chat();
             chatForSave.setId(UUID.randomUUID());
             chatForSave.setChatType(createChatRequest.getChatType());
             chatForSave.setName(createChatRequest.getName());
             Chat savedChat = chatRepository.save(chatForSave);
-
             List<UUID> listUsersIds = createChatRequest.getUsers();
-
             if (chatForSave.getChatType() == 0 && listUsersIds.size() > 2)
                 throw new RuntimeException(ErrorMessages.USER_COUNT_ERROR);
-
             Set<UUID> uniqueIds = new HashSet<>();
             if (!listUsersIds.stream().allMatch(uniqueIds::add)) {
                 throw new RuntimeException(ErrorMessages.USER_DUPLICATED);
             }
-
             for (UUID listUsersId : listUsersIds) {
                 Optional<UsersChats> usersChatsO = usersChatsService.findByUserId(listUsersId);
                 if (usersChatsO.isEmpty())
                     throw new RuntimeException(ErrorMessages.NOT_FOUND + ": " + listUsersId.toString());
-
                 UsersChats usersChats = usersChatsO.get();
                 List<UUID> chats = usersChats.getChats();
                 UUID savedId = savedChat.getId();
                 chats.add(savedId);
                 usersChatsService.save(usersChats);
             }
-
-
             log.info("Chat with ID: {} has been successfully created.", savedChat.getId());
             return savedChat.getId();
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -91,13 +83,11 @@ public class ChatService {
         MessageForResponse messageForResponse = new MessageForResponse(message);
         List<MessageForResponse> messages = chatMessages.computeIfAbsent(chatId, k -> new ArrayList<>());
         messages.add(messageForResponse);
-
         ConcurrentLinkedQueue<DeferredResult<MessageForResponse>> clients = chatClients.get(chatId);
         if (clients != null) {
             clients.forEach(client -> client.setResult(messageForResponse));
             clients.clear();
         }
-
         return message.getId();
     }
 
@@ -115,7 +105,6 @@ public class ChatService {
 
 
     public ResponseSearchChat getUsersChats(UUID userId, String request, Long pageNumber, Long countChatsOnPage) {
-
         try {
             List<UUID> userChats = usersChatsService.findByUserId(userId).get().getChats();
             List<Chat> listOfChats = chatRepository.findByNameContainingAndIdIn(userChats, request, PageRequest.of(pageNumber.intValue(), countChatsOnPage.intValue())).stream().toList();

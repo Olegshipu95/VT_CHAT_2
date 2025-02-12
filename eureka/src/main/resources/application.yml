@@ -1,11 +1,18 @@
 spring:
   application:
-    name: eureka-server
+    name: chat-eureka-cloud
+  #security:
+    #user:
+     # name: ${EUREKA_CLIENT_USERNAME:eureka_client}
+      #password: ${EUREKA_CLIENT_PASSWORD:eureka_password}
+
+eureka:
+  server:
+    metrics:
+      enabled: true
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+
 server:
   port: ${SERVER_PORT:8761}
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-    service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}

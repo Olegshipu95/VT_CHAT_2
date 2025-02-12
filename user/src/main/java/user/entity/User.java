@@ -1,7 +1,6 @@
 package user.entity;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import user.utils.ErrorMessages;
@@ -38,6 +37,9 @@ public class User {
     @Column("email")
     private String email;
 
+    @Column("password")
+    private String password;
+
     @Column("brief_description")
     private String briefDescription;
 
@@ -50,4 +52,6 @@ public class User {
     @Column("logo_url")
     private String logoUrl;
 
+    @Column("role")
+    private String role;
 }

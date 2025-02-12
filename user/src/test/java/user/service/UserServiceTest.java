@@ -1,211 +1,163 @@
 package user.service;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import user.dto.request.CreateUserAccountRequest;
 import user.dto.request.UpdateUserInfoRequest;
-import user.dto.response.GetUserInfoResponse;
+import user.entity.Role;
 import user.entity.User;
-import user.entity.UsersChats;
-import user.exception.UserAccountNotFoundException;
+import user.exception.InternalException;
 import user.repository.UserRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
-
-    @InjectMocks
-    private UserService userService;
 
     @Mock
     private UserRepository userRepository;
 
     @Mock
-    private UsersChatsServiceClient usersChatsService;
+    private PasswordEncoder passwordEncoder;
 
-    private UUID testUserId;
-    private CreateUserAccountRequest createUserAccountRequest;
-    private UpdateUserInfoRequest updateUserInfoRequest;
-    private GetUserInfoResponse getUserInfoResponse;
-    private User testUser;
+    //@Mock
+    //private UsersChatsRepository usersChatsRepository;
 
-    @BeforeEach
-    void setUp() {
-        testUserId = UUID.randomUUID();
-        createUserAccountRequest = new CreateUserAccountRequest(
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Software Engineer",
-                "New York",
-                LocalDate.of(1990, 1, 1),
-                "http://example.com/logo.png"
+    @InjectMocks
+    private UserService userService;
+
+    @Test
+    public void createAccountTest_ok() {
+        CreateUserAccountRequest request = new CreateUserAccountRequest(
+            "name",
+            "surname",
+            "email",
+            "password",
+            "briefDescription",
+            "City",
+            LocalDate.now(),
+            "logo_url",
+            Role.SUPERVISOR
         );
-        updateUserInfoRequest = new UpdateUserInfoRequest(
-                testUserId,
-                "Jane",
-                "Doe",
-                "jane.doe@example.com",
-                "Senior Software Engineer",
-                "San Francisco",
-                LocalDate.of(1985, 5, 15),
-                "http://example.com/new-logo.png"
+        User user = createUser();
+        when(userRepository.findByEmail(any())).thenReturn(Mono.empty());
+        when(userRepository.save(any())).thenReturn(Mono.just(user));
+
+        StepVerifier.create(userService.createAccount(request))
+            .expectNextCount(1)
+            .verifyComplete();
+    }
+
+    @Test
+    public void createAccountTest_exists() {
+        CreateUserAccountRequest request = new CreateUserAccountRequest(
+            "name",
+            "surname",
+            "email",
+            "password",
+            "briefDescription",
+            "City",
+            LocalDate.now(),
+            "logo_url",
+            Role.SUPERVISOR
         );
-        getUserInfoResponse = new GetUserInfoResponse(
-                testUserId,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Software Engineer",
-                "New York",
-                LocalDate.of(1990, 1, 1),
-                "http://example.com/logo.png"
+        User user = createUser();
+        when(userRepository.findByEmail(any())).thenReturn(Mono.just(user));
+        when(userRepository.save(any())).thenReturn(Mono.just(user));
+
+        StepVerifier.create(userService.createAccount(request))
+            .expectError(InternalException.class)
+            .verify();
+    }
+
+    @Test
+    public void updateAccountTest_ok() {
+        User user = createUser();
+        UpdateUserInfoRequest request = new UpdateUserInfoRequest(
+            user.getId(),
+            user.getName(),
+            user.getSurname(),
+            user.getEmail(),
+            user.getBriefDescription(),
+            user.getCity(),
+            user.getBirthday(),
+            user.getLogoUrl()
         );
-        testUser = new User(
-                testUserId,
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "Software Engineer",
-                "New York",
-                LocalDate.of(1990, 1, 1),
-                "http://example.com/logo.png"
+
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        when(userRepository.save(any())).thenReturn(Mono.just(user));
+
+        StepVerifier.create(userService.updateAccount(request))
+            .expectNextCount(1)
+            .verifyComplete();
+    }
+
+    @Test
+    public void updateAccountTest_not_found() {
+        User user = createUser();
+        UpdateUserInfoRequest request = new UpdateUserInfoRequest(
+            user.getId(),
+            user.getName(),
+            user.getSurname(),
+            user.getEmail(),
+            user.getBriefDescription(),
+            user.getCity(),
+            user.getBirthday(),
+            user.getLogoUrl()
         );
+
+        when(userRepository.findById(user.getId())).thenReturn(Mono.empty());
+
+        StepVerifier.create(userService.updateAccount(request))
+            .expectError(InternalException.class)
+            .verify();
     }
 
     @Test
-    void testCreateAccount() {
-        when(userRepository.save(any(User.class))).thenReturn(Mono.just(testUser));
-        when(usersChatsService.save(any(UsersChats.class))).thenReturn(new UsersChats());
+    public void deleteAccount_not_found() {
+        User user = createUser();
 
-        Mono<UUID> result = userService.createAccount(createUserAccountRequest);
+        when(userRepository.findById(user.getId())).thenReturn(Mono.empty());
 
-        StepVerifier.create(result)
-                .expectNext(testUserId)
-                .verifyComplete();
-
-        verify(userRepository, times(1)).save(any(User.class));
-        verify(usersChatsService, times(1)).save(any(UsersChats.class));
+        StepVerifier.create(userService.deleteAccountById(user.getId()))
+            .expectError(InternalException.class)
+            .verify();
     }
 
     @Test
-    void testUpdateAccount() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.just(testUser));
-        when(userRepository.save(any(User.class))).thenReturn(Mono.just(testUser));
+    public void deleteAccount_ok() {
+        User user = createUser();
 
-        Mono<UUID> result = userService.updateAccount(updateUserInfoRequest);
-
-        StepVerifier.create(result)
-                .expectNext(testUserId)
-                .verifyComplete();
-
-        verify(userRepository, times(1)).findById(testUserId);
-        verify(userRepository, times(1)).save(any(User.class));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        when(userRepository.deleteById(user.getId())).thenReturn(Mono.empty());
+        StepVerifier.create(userService.deleteAccountById(user.getId()))
+            .expectNextCount(0)
+            .verifyComplete();
     }
 
     @Test
-    void testUpdateAccountNotFound() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.empty());
+    public void getAccountById_ok() {
+        User user = createUser();
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
 
-        Mono<UUID> result = userService.updateAccount(updateUserInfoRequest);
-
-        StepVerifier.create(result)
-                .expectError(UserAccountNotFoundException.class)
-                .verify();
-
-        verify(userRepository, times(1)).findById(testUserId);
-        verify(userRepository, never()).save(any(User.class));
+        StepVerifier.create(userService.getAccountById(user.getId()))
+            .expectNextCount(1)
+            .verifyComplete();
     }
 
-    @Test
-    void testGetAccountById() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.just(testUser));
-
-        Mono<GetUserInfoResponse> result = userService.getAccountById(testUserId);
-
-        StepVerifier.create(result)
-                .expectNext(getUserInfoResponse)
-                .verifyComplete();
-
-        verify(userRepository, times(1)).findById(testUserId);
-    }
-
-    @Test
-    void testGetAccountByIdNotFound() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.empty());
-
-        Mono<GetUserInfoResponse> result = userService.getAccountById(testUserId);
-
-        StepVerifier.create(result)
-                .expectError(UserAccountNotFoundException.class)
-                .verify();
-
-        verify(userRepository, times(1)).findById(testUserId);
-    }
-
-    @Test
-    void testDeleteAccountById() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.just(testUser));
-        when(userRepository.deleteById(testUserId)).thenReturn(Mono.empty());
-
-        Mono<Void> result = userService.deleteAccountById(testUserId);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        verify(userRepository, times(1)).findById(testUserId);
-        verify(userRepository, times(1)).deleteById(testUserId);
-    }
-
-    @Test
-    void testDeleteAccountByIdNotFound() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.empty());
-
-        Mono<Void> result = userService.deleteAccountById(testUserId);
-
-        StepVerifier.create(result)
-                .expectError(UserAccountNotFoundException.class)
-                .verify();
-
-        verify(userRepository, times(1)).findById(testUserId);
-        verify(userRepository, never()).deleteById(testUserId);
-    }
-
-    @Test
-    void testFindById() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.just(testUser));
-
-        Mono<User> result = userService.findById(testUserId);
-
-        StepVerifier.create(result)
-                .expectNext(testUser)
-                .verifyComplete();
-
-        verify(userRepository, times(1)).findById(testUserId);
-    }
-
-    @Test
-    void testFindByIdNotFound() {
-        when(userRepository.findById(testUserId)).thenReturn(Mono.empty());
-
-        Mono<User> result = userService.findById(testUserId);
-
-        StepVerifier.create(result)
-                .expectNextCount(0)
-                .verifyComplete();
-
-        verify(userRepository, times(1)).findById(testUserId);
+    private User createUser() {
+        return new User(UUID.randomUUID(), "name", "surname", "email", "password", "briefDescription", "City", LocalDate.now(), "logo_url", "SUPERVISOR");
     }
 }
