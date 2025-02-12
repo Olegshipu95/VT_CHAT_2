@@ -14,6 +14,22 @@ services:
       - cloud
       - local
 
+
+  chat-eureka:
+    container_name: eureka
+    image: eureka
+    ports:
+      - "8761:8761"
+    build:
+      context: eureka
+      dockerfile: Dockerfile
+    environment:
+      PORT: 8761
+    profiles:
+      - cloud
+
+
+
   chat-config:
     container_name: config
     image: config
@@ -37,6 +53,7 @@ services:
       USER_R2DBC_URL: r2dbc:postgresql://chat-postgres:5432/users
       USER_DB_URL: jdbc:postgresql://chat-postgres:5432/users
 
+      EUREKA_SERVER_URL: http://chat-eureka:8761/eureka/
     profiles:
       - cloud
 

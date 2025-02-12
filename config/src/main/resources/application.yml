@@ -5,7 +5,7 @@ info:
 
 spring:
   application:
-    name: config
+    name: chat-config-cloud
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:native}
   cloud:
@@ -16,7 +16,8 @@ spring:
 
 eureka:
   client:
-    enabled: false
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://chat-eureka:8761/eureka}
 
 #eureka:
 #  client:
