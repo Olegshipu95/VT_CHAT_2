@@ -35,6 +35,7 @@ public class ChatController {
         this.chatService = aChatService;
     }
 
+
     @PostMapping("/users")
     public ResponseEntity<?> addUserChats(@RequestBody UsersChats usersChats) {
         try {
@@ -52,10 +53,12 @@ public class ChatController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(chatService.createChat(createChatRequest));
 
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
 
     @GetMapping
     public ResponseEntity<?> getUsersChats(@Valid @RequestBody SearchChatRequest searchChatRequest) {
@@ -78,6 +81,7 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
 
     @DeleteMapping("/{chatId}")
     public ResponseEntity<?> deleteChat(@NotNull(message = ErrorMessages.ID_CANNOT_BE_NULL)

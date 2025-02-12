@@ -1,5 +1,6 @@
 package messenger.entity;
 
+
 import messenger.dto.user.response.GetUserInfoResponse;
 import messenger.service.CustomerServiceClient;
 import com.fasterxml.jackson.core.JsonParser;
