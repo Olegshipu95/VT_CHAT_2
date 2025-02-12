@@ -57,6 +57,26 @@ services:
     profiles:
       - cloud
 
+  gateway:
+    container_name: gateway
+#    restart: always
+    image: gateway
+    ports:
+      - "8080:8080"
+    build:
+      context: gateway
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: cloud
+      CONFIG_SERVER_URL: http://chat-config:8888
+      API_PREFIX: /api
+      PORT: 8080
+    depends_on:
+      - chat-eureka
+      - chat-config
+    profiles:
+      - cloud
+
   user:
     container_name: user
     restart: always

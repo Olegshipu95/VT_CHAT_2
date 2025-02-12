@@ -21,63 +21,51 @@ public class RouteConfiguration {
     ) {
         return route.routes()
                 .route(props.getUser() + "-route-auth", r -> r
-                        .path(apiPrefix + "/accounts/users/**")
-                        .filters(f -> f
-                                .stripPrefix(1)
+                                .path(apiPrefix + "/accounts/users/**")
+                                .filters(f -> f
+                                                .stripPrefix(1)
 //                                .circuitBreaker(c -> c
 //                                        .setName(props.getUser() + "-circuit-breaker")
-//                                        .setFallbackUri(URI.create("forward:/fallback"))
+//                                        .setFallbackUri(URI.create("forward:/fallback/users"))
 //                                )
-                        )
-                        .uri("lb://" + props.getUser())
-                )
-                .route(props.getNews() + "-route-users", r -> r
-                        .path(apiPrefix + "/news/**")
-                        .filters(f -> f
-                                .stripPrefix(2)
-                                .circuitBreaker(c -> c
-                                        .setName(props.getNews() + "-circuit-breaker")
-                                        .setFallbackUri(URI.create("forward:/fallback"))
                                 )
-                                .filter(authFilter.apply(new AuthenticationFilter.Config()))
-                        )
-                        .uri("lb://" + props.getNews())
+                                .uri("lb://" + props.getUser())
                 )
                 .route(props.getFeed() + "-route-feed", r -> r
-                        .path(apiPrefix + "/feed/**")
-                        .filters(f -> f
-                                .stripPrefix(2)
-                                .circuitBreaker(cb -> cb
-                                        .setName(props.getFeed() + "-circuit-breaker")
-                                        .setFallbackUri(URI.create("forward:/fallback"))
+                                .path(apiPrefix + "/feed/**")
+                                .filters(f -> f
+                                                .stripPrefix(1)
+//                                .circuitBreaker(cb -> cb
+//                                        .setName(props.getFeed() + "-circuit-breaker")
+//                                        .setFallbackUri(URI.create("forward:/fallback/feed"))
+//                                )
+//                                 .filter(authFilter.apply(new AuthenticationFilter.Config()))
                                 )
-                                 .filter(authFilter.apply(new AuthenticationFilter.Config()))
-                        )
-                        .uri("lb://" + props.getFeed())
+                                .uri("lb://" + props.getFeed())
                 )
                 .route(props.getMessenger() + "-route-messenger", r -> r
                         .path(apiPrefix + "/chats/**")
                         .filters(f -> f
-                                .stripPrefix(2)
-                                .circuitBreaker(cb -> cb
-                                        .setName(props.getMessenger() + "-circuit-breaker")
-                                        .setFallbackUri(URI.create("forward:/fallback"))
-                                )
-                                .filter(authFilter.apply(new AuthenticationFilter.Config()))
+                                .stripPrefix(1)
+//                                .circuitBreaker(cb -> cb
+//                                        .setName(props.getMessenger() + "-circuit-breaker")
+//                                        .setFallbackUri(URI.create("forward:/fallback"))
+//                                )
+//                                .filter(authFilter.apply(new AuthenticationFilter.Config()))
                         )
                         .uri("lb://" + props.getMessenger())
                 )
-                .route(props.getSubscription() + "-route-sub", r -> r
+                .route(props.getSubs() + "-route-sub", r -> r
                         .path(apiPrefix + "/subscribe/**")
                         .filters(f -> f
-                                .stripPrefix(2)
-                                .circuitBreaker(cb -> cb
-                                        .setName(props.getSubscription() + "-circuit-breaker")
-                                        .setFallbackUri(URI.create("forward:/fallback"))
-                                )
-                                .filter(authFilter.apply(new AuthenticationFilter.Config()))
+                                .stripPrefix(1)
+//                                .circuitBreaker(cb -> cb
+//                                        .setName(props.getSubs() + "-circuit-breaker")
+//                                        .setFallbackUri(URI.create("forward:/fallback/subs"))
+//                                )
+//                                .filter(authFilter.apply(new AuthenticationFilter.Config()))
                         )
-                        .uri("lb://" + props.getSubscription())
+                        .uri("lb://" + props.getSubs())
                 )
                 .build();
     }
