@@ -45,7 +45,6 @@ public class ChatService {
 
     public UUID createChat(CreateChatRequest createChatRequest) {
 
-
         try {
 
             Chat chatForSave = new Chat();

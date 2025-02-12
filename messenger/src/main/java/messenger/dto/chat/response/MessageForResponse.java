@@ -11,7 +11,7 @@ import java.util.UUID;
 public class MessageForResponse {
     private UUID id;
     private Chat chatId;
-    private User authorId;
+    private UUID authorId;
     private String text;
     private Timestamp timestamp;
     private byte[] photo;
@@ -20,7 +20,7 @@ public class MessageForResponse {
         this.chatId = chatId;
     }
 
-    public void setAuthorId(User authorId) {
+    public void setAuthorId(UUID authorId) {
         this.authorId = authorId;
     }
 
@@ -57,7 +57,7 @@ public class MessageForResponse {
         return chatId;
     }
 
-    public User getAuthorId() {
+    public UUID getAuthorId() {
         return authorId;
     }
 

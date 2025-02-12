@@ -18,11 +18,9 @@ public class Message {
     @NotNull(message = ErrorMessages.CHAT_CANNOT_BE_NULL)
     @JsonDeserialize(using = ChatDeserializer.class)
     private Chat chatId;
-    @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     @NotNull(message = ErrorMessages.USER_CANNOT_BE_NULL)
-    @JsonDeserialize(using = UserDeserializer.class)
-    private User authorId;
+    private UUID authorId;
     @Column(name = "text", nullable = false)
     @NotNull(message = ErrorMessages.TEXT_CANNOT_BE_NULL)
     private String text;
@@ -48,11 +46,11 @@ public class Message {
         this.chatId = chatId;
     }
 
-    public User getAuthorId() {
+    public UUID getAuthorId() {
         return authorId;
     }
 
-    public void setAuthorId(User authorId) {
+    public void setAuthorId(UUID authorId) {
         this.authorId = authorId;
     }
 
