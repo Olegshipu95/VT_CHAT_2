@@ -1,28 +1,42 @@
 package messenger.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.support.ErrorMessage;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ServerWebInputException;
 
 @Slf4j
 @RestControllerAdvice
 public class ExceptionApiHandler {
 
-    @ExceptionHandler(UserAccountNotFoundException.class)
-    public ResponseEntity<ErrorMessage> handleUserAccountNotFound(UserAccountNotFoundException ex) {
-        return handleException(ex);
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Error> handleDefaultException(Exception ex) {
+        log.error("Handle default exception", ex);
+        return new Error(HttpStatus.SERVICE_UNAVAILABLE.value(), ErrorCode.SERVICE_UNAVAILABLE)
+            .asResponseEntity();
     }
 
-    @ExceptionHandler(UserAccountWasNotInsertException.class)
-    public ResponseEntity<ErrorMessage> handleUserAccountWasNotInserted(UserAccountWasNotInsertException ex) {
-        return handleException(ex);
+    @ExceptionHandler(InternalException.class)
+    public ResponseEntity<Error> internalException(InternalException ex) {
+        log.error("Handle internal error", ex);
+        return new Error(ex.getHttpStatus().value(), ex.getErrorCode())
+            .asResponseEntity();
     }
 
-    private ResponseEntity<ErrorMessage> handleException(Exception ex) {
-        log.info("Bad_Request: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(ex));
+    @ExceptionHandler({
+        ConstraintViolationException.class,
+        MethodArgumentNotValidException.class,
+        WebExchangeBindException.class,
+        ServerWebInputException.class
+    })
+    public ResponseEntity<Error> validationExceptions(Exception ex) {
+        log.error("Handle validation error", ex);
+        return new Error(HttpStatus.BAD_REQUEST.value(), ErrorCode.VALIDATION_FAILED)
+            .asResponseEntity();
     }
 }

@@ -17,4 +17,6 @@ public interface SubRepository extends JpaRepository<Subscribers, UUID> {
             WHERE s.userId = :userId
             """)
     List<SubscriptionResponse> getSubResponseByUserId(@Param("userId") UUID userId);
+
+    boolean existsByUserIdAndSubscribedUserId(UUID userId, UUID subscribedUserId);
 }

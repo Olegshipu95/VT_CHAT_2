@@ -1,18 +1,17 @@
 package subscription.dto.subs.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import subscription.utils.ErrorMessages;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record CreateSubRequest(
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateSubRequest {
         @NotNull(message = ErrorMessages.ID_CANNOT_BE_NULL)
-        @JsonProperty("user_id")
-        UUID userId,
-
-        @NotNull(message = ErrorMessages.ID_CANNOT_BE_NULL)
-        @JsonProperty("subscribed_user_id")
-        UUID subscribedUserId
-) { }
+        private UUID subscribedUserId;
+}

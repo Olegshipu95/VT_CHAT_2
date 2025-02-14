@@ -31,5 +31,5 @@ databaseChangeLog:
                   name: messaged_time
                   type: timestamp
               - column:
-                  name: photo
-                  type: blob
+                  name: photos
+                  type: json

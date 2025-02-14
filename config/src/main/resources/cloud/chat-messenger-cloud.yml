@@ -1,20 +1,16 @@
 spring:
   datasource:
-    url: ${MESSENGER_DB_URL:jdbc:postgresql://chat-postgres:5432/messenger}
+    url: ${MESSENGER_DB_URL:jdbc:postgresql://localhost:5435/messenger}
+    #url: ${MESSENGER_DB_URL:jdbc:postgresql://chat-postgres:5432/messenger}
     username: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
 
   liquibase:
     enabled: true
-    url: ${MESSENGER_DB_URL:jdbc:postgresql://chat-postgres:5432/messenger}
+    url: ${MESSENGER_DB_URL:jdbc:postgresql://localhost:5435/messenger}
+    #url: ${MESSENGER_DB_URL:jdbc:postgresql://chat-postgres:5432/messenger}
     user: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
-
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://chat-eureka:8761/eureka}
 
 management:
   endpoints:

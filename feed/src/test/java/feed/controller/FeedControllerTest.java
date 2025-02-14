@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class FeedControllerTest extends BaseControllerTest {
 
-
     @Test
     public void getPostsPage() throws Exception {
         mockMvc.perform(

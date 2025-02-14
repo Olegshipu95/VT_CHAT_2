@@ -1,20 +1,19 @@
 package messenger.dto.chat.response;
 
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import messenger.entity.ChatType;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.UUID;
 
-@Setter
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChatForResponse {
-    UUID id;
-    ChatType chatType;
-    int countMembers;
-    String lastMessage;
-    boolean lastMessageHavePhoto;
-
-
+    private UUID id;
+    private ChatType chatType;
+    private int countMembers;
+    private String lastMessage;
+    private boolean lastMessageHavePhoto;
 }

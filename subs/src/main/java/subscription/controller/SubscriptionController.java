@@ -34,7 +34,7 @@ public class SubscriptionController {
     @DeleteMapping("/{subId}")
     public ResponseEntity<Void> deleteSubscription(@PathVariable UUID subId) {
         service.deleteSub(subId);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
     @GetMapping("/user/{userId}")

@@ -1,15 +1,14 @@
 package messenger.dto.chat.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import messenger.entity.Chat;
 import messenger.entity.Message;
-import messenger.entity.User;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,8 +20,7 @@ public class MessageForResponse {
     private UUID authorId;
     private String text;
     private Timestamp timestamp;
-    private byte[] photo;
-
+    private List<String> photos;
 
     public MessageForResponse(Message message) {
         this.id = message.getId();
@@ -30,7 +28,6 @@ public class MessageForResponse {
         this.authorId = message.getAuthorId();
         this.text = message.getText();
         this.timestamp = message.getTimestamp();
-        this.photo = message.getPhoto();
+        this.photos = new ArrayList<>();
     }
-
 }

@@ -13,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SearchMessageRequest {
+
     @NotNull(message = ErrorMessages.ID_CANNOT_BE_NULL)
     @Min(value = 0, message = ErrorMessages.ID_CANNOT_BE_NEGATIVE)
     private UUID chatId;

@@ -32,12 +32,20 @@ public class RouteConfiguration {
                 .uri("lb://" + props.getUser())
             )
             .route(props.getFeed() + "-route-feed", r -> r
-                    .path(apiPrefix + "/feed/**")
+                .path(apiPrefix + "/feed/**")
                 .filters(f -> {
                     f.stripPrefix(1);
                     return f.filter(authFilter.apply(new AuthenticationFilter.Config()));
                 })
                 .uri("lb://" + props.getFeed())
+            )
+            .route(props.getSubs() + "-route-sub", r -> r
+                .path(apiPrefix + "/subscribe/**")
+                .filters(f -> {
+                    f.stripPrefix(1);
+                    return f.filter(authFilter.apply(new AuthenticationFilter.Config()));
+                })
+                .uri("lb://" + props.getSubs())
             )
             /*
               .route(props.getMessenger() + "-route-messenger", r -> r

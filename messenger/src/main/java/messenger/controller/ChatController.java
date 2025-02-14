@@ -29,7 +29,6 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.UUID;
 
-
 @Slf4j
 @RestController
 @RequestMapping("/chats")
@@ -73,10 +72,10 @@ public class ChatController {
         @PathVariable UUID userId,
         @NotNull(message = ErrorMessages.PAGE_CANNOT_BE_NULL)
         @Min(value = 0, message = ErrorMessages.PAGE_CANNOT_BE_NEGATIVE)
-        @RequestParam(value = "pageNumber", required = false, defaultValue = "0") Long pageNumber,
+        @RequestParam(value = "page", required = false, defaultValue = "0") Long pageNumber,
         @NotNull(message = ErrorMessages.COUNT_PAGE_CANNOT_BE_NULL)
         @Min(value = 0, message = ErrorMessages.COUNT_PAGE_CANNOT_BE_NEGATIVE)
-        @RequestParam(value = "countChatsOnPage", required = false, defaultValue = "20") Long countChatsOnPage
+        @RequestParam(value = "size", required = false, defaultValue = "20") Long countChatsOnPage
     ) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(chatService.getAllChatsByUserId(userId, pageNumber, countChatsOnPage));
