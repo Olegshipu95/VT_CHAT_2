@@ -8,12 +8,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import subscription.dto.User;
 import subscription.dto.subs.request.CreateSubRequest;
+import subscription.dto.subs.response.SubscriptionResponse;
 import subscription.entity.Subscribers;
 import subscription.exception.InternalException;
 import subscription.repository.SubRepository;
 import subscription.utils.SecurityMock;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -97,5 +99,14 @@ class SubscriptionServiceTest {
         when(subscribersRepository.existsById(any())).thenReturn(false);
 
         assertThrows(InternalException.class, () -> subscriptionService.deleteSub(id));
+    }
+
+    @Test
+    public void getSubscriptionsByUserId_ok() {
+        SubscriptionResponse subscriptionResponse = new SubscriptionResponse(UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now());
+        when(subscribersRepository.getSubResponseByUserId(any())).thenReturn(List.of(subscriptionResponse));
+
+        List<SubscriptionResponse> expected = subscriptionService.getSubscriptionsByUserId(UUID.randomUUID());
+        assertEquals(expected.stream().findFirst().get(), subscriptionResponse);
     }
 }
