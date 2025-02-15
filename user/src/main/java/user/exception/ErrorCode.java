@@ -12,6 +12,7 @@ public enum ErrorCode {
 
     // user errors
     FORBIDDEN,
+    UNAUTHORIZED,
     USER_NOT_FOUND,
     USER_ALREADY_EXIST,
     USER_PASSWORD_INCORRECT,

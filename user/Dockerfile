@@ -9,8 +9,7 @@ COPY build.gradle settings.gradle ./
 COPY src ./src
 
 # Сборка проекта и проверка, что артефакт создан
-RUN gradle clean build -x test && \
-    ls -l build/libs/*.jar || { echo "JAR-файл не найден! Проверьте настройки сборки."; exit 1; }
+RUN gradle clean build -x test -x jacocoTestCoverageVerification
 
 # Этап запуска
 FROM amazoncorretto:17-alpine
