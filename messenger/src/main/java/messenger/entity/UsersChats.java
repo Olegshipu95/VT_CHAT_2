@@ -1,43 +1,29 @@
 package messenger.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
+@Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "users_chats")
 public class UsersChats {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     @Column(name = "user_id")
     private UUID userId;
+
+    @Column(name = "chats_ids")
     @ElementCollection
     @CollectionTable(name = "users_chats_chats", joinColumns = @JoinColumn(name = "users_chats_id"))
-    @Column(name = "chats_ids")
     private List<UUID> chats;
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public List<UUID> getChats() {
-        return chats;
-    }
-
-    public void setChats(List<UUID> chats) {
-        this.chats = chats;
-    }
 }

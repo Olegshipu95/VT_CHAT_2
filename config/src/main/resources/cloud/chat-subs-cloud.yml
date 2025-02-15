@@ -1,20 +1,16 @@
 spring:
   datasource:
-    url: ${SUBS_DB_URL:jdbc:postgresql://chat-postgres:5432/subs}
+    url: ${SUBS_DB_URL:jdbc:postgresql://localhost:5435/subs}
+    #url: ${SUBS_DB_URL:jdbc:postgresql://chat-postgres:5432/subs}
     username: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
 
   liquibase:
     enabled: true
-    url: ${SUBS_DB_URL:jdbc:postgresql://chat-postgres:5432/subs}
+    url: ${SUBS_DB_URL:jdbc:postgresql://localhost:5435/subs}
+    #url: ${SUBS_DB_URL:jdbc:postgresql://chat-postgres:5432/subs}
     user: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
-
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://chat-eureka:8761/eureka}
 
 management:
   endpoints:

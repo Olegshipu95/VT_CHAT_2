@@ -1,44 +1,26 @@
 package messenger.dto.chat.response;
 
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import messenger.entity.Chat;
 import messenger.entity.Message;
-import messenger.entity.User;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class MessageForResponse {
     private UUID id;
     private Chat chatId;
     private UUID authorId;
     private String text;
     private Timestamp timestamp;
-    private byte[] photo;
-
-    public void setChatId(Chat chatId) {
-        this.chatId = chatId;
-    }
-
-    public void setAuthorId(UUID authorId) {
-        this.authorId = authorId;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    private List<String> photos;
 
     public MessageForResponse(Message message) {
         this.id = message.getId();
@@ -46,30 +28,6 @@ public class MessageForResponse {
         this.authorId = message.getAuthorId();
         this.text = message.getText();
         this.timestamp = message.getTimestamp();
-        this.photo = message.getPhoto();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Chat getChatId() {
-        return chatId;
-    }
-
-    public UUID getAuthorId() {
-        return authorId;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public Timestamp getTimestamp() {
-        return timestamp;
-    }
-
-    public byte[] getPhoto() {
-        return photo;
+        this.photos = new ArrayList<>();
     }
 }

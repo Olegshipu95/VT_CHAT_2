@@ -1,17 +1,13 @@
 spring:
   config:
-    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}/
+    import: "configserver:"
   cloud:
     config:
       fail-fast: true
-#      discovery:
-#        enabled: true
-#        service-id: afa-config
-
-#eureka:
-#  client:
-#    registry-fetch-interval-seconds: 30
-#    eureka-server-read-timeout-seconds: 10
-#    eureka-server-connect-timeout-seconds: 60
-#    service-url:
-#      defaultZone: ${DISCOVERY_SERVER_URL:http://eureka_client:eureka_password@localhost:8761/eureka}
+      discovery:
+        enabled: true
+        service-id: chat-config-cloud
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka}

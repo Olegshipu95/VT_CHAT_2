@@ -14,143 +14,141 @@ services:
       - cloud
       - local
 
-
-  chat-eureka:
-    container_name: eureka
-    image: eureka
-    ports:
-      - "8761:8761"
-    build:
-      context: eureka
-      dockerfile: Dockerfile
-    environment:
-      PORT: 8761
-    profiles:
-      - cloud
-
-
-
-  chat-config:
-    container_name: config
-    image: config
-    ports:
-      - "8888:8888"
-    build:
-      context: config
-      dockerfile: Dockerfile
-    environment:
-      SPRING_PROFILES_ACTIVE: native
-#      EUREKA_SERVER_URL: http://eureka_client:eureka_password@chat-eureka:8761/eureka
-      PORT: 8888
-
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-
-      FEED_DB_URL: jdbc:postgresql://chat-postgres:5432/feed
-      SUBS_DB_URL: jdbc:postgresql://chat-postgres:5432/subs
-      MESSENGER_DB_URL: jdbc:postgresql://chat-postgres:5432/messenger
-
-      USER_R2DBC_URL: r2dbc:postgresql://chat-postgres:5432/users
-      USER_DB_URL: jdbc:postgresql://chat-postgres:5432/users
-
-      EUREKA_SERVER_URL: http://chat-eureka:8761/eureka/
-    profiles:
-      - cloud
-
-  gateway:
-    container_name: gateway
+#
+#  chat-eureka:
+#    container_name: eureka
+#    image: eureka
+#    ports:
+#      - "8761:8761"
+#    build:
+#      context: eureka
+#      dockerfile: Dockerfile
+#    environment:
+#      PORT: 8761
+#    profiles:
+#      - cloud
+#
+#  chat-config:
+#    container_name: config
+#    image: config
+#    ports:
+#      - "8888:8888"
+#    build:
+#      context: config
+#      dockerfile: Dockerfile
+#    environment:
+#      SPRING_PROFILES_ACTIVE: native
+##      EUREKA_SERVER_URL: http://eureka_client:eureka_password@chat-eureka:8761/eureka
+#      PORT: 8888
+#
+#      POSTGRES_USER: username
+#      POSTGRES_PASSWORD: password
+#
+#      FEED_DB_URL: jdbc:postgresql://chat-postgres:5432/feed
+#      SUBS_DB_URL: jdbc:postgresql://chat-postgres:5432/subs
+#      MESSENGER_DB_URL: jdbc:postgresql://chat-postgres:5432/messenger
+#
+#      USER_R2DBC_URL: r2dbc:postgresql://chat-postgres:5432/users
+#      USER_DB_URL: jdbc:postgresql://chat-postgres:5432/users
+#
+#      EUREKA_SERVER_URL: http://chat-eureka:8761/eureka/
+#    profiles:
+#      - cloud
+#
+#  gateway:
+#    container_name: gateway
+##    restart: always
+#    image: gateway
+#    ports:
+#      - "8080:8080"
+#    build:
+#      context: gateway
+#      dockerfile: Dockerfile
+#    environment:
+#      SPRING_PROFILES_ACTIVE: cloud
+#      CONFIG_SERVER_URL: http://chat-config:8888
+#      API_PREFIX: /api
+#      PORT: 8080
+#    depends_on:
+#      - chat-eureka
+#      - chat-config
+#    profiles:
+#      - cloud
+#
+#  user:
+#    container_name: user
 #    restart: always
-    image: gateway
-    ports:
-      - "8080:8080"
-    build:
-      context: gateway
-      dockerfile: Dockerfile
-    environment:
-      SPRING_PROFILES_ACTIVE: cloud
-      CONFIG_SERVER_URL: http://chat-config:8888
-      API_PREFIX: /api
-      PORT: 8080
-    depends_on:
-      - chat-eureka
-      - chat-config
-    profiles:
-      - cloud
-
-  user:
-    container_name: user
-    restart: always
-    image: user
-    ports:
-      - "8383:8383"
-    build:
-      context: user
-      dockerfile: Dockerfile
-    environment:
-      SPRING_PROFILES_ACTIVE: cloud
-      CONFIG_SERVER_URL: http://chat-config:8888
-      PORT: 8383
-    depends_on:
-      - chat-postgres
-      - chat-config
-    profiles:
-      - cloud
-
-
-  feed:
-    container_name: feed
-    restart: always
-    image: feed
-    ports:
-      - "8381:8381"
-    build:
-      context: feed
-      dockerfile: Dockerfile
-    environment:
-      SPRING_PROFILES_ACTIVE: cloud
-      CONFIG_SERVER_URL: http://chat-config:8888
-      PORT: 8381
-    depends_on:
-      - chat-postgres
-      - chat-config
-    profiles:
-      - cloud
-
-  subscription:
-    container_name: subscription
-    image: subscription
-    restart: always
-    ports:
-      - "8084:8084"
-    build:
-      context: subs
-      dockerfile: Dockerfile
-    environment:
-      SPRING_PROFILES_ACTIVE: cloud
-      CONFIG_SERVER_URL: http://chat-config:8888
-      PORT: 8084
-    depends_on:
-      - chat-postgres
-      - chat-config
-    profiles:
-      - cloud
-
-
-  chat-messenger:
-    container_name: messenger
-    image: messenger
-    restart: always
-    ports:
-      - "8382:8382"
-    build:
-      context: messenger
-      dockerfile: Dockerfile
-    environment:
-      SPRING_PROFILES_ACTIVE: cloud
-      CONFIG_SERVER_URL: http://chat-config:8888
-      PORT: 8382
-    depends_on:
-      - chat-postgres
-      - chat-config
-    profiles:
-      - cloud
+#    image: user
+#    ports:
+#      - "8383:8383"
+#    build:
+#      context: user
+#      dockerfile: Dockerfile
+#    environment:
+#      SPRING_PROFILES_ACTIVE: cloud
+#      CONFIG_SERVER_URL: http://chat-config:8888
+#      PORT: 8383
+#    depends_on:
+#      - chat-postgres
+#      - chat-config
+#    profiles:
+#      - cloud
+#
+#
+#  feed:
+#    container_name: feed
+#    restart: always
+#    image: feed
+#    ports:
+#      - "8381:8381"
+#    build:
+#      context: feed
+#      dockerfile: Dockerfile
+#    environment:
+#      SPRING_PROFILES_ACTIVE: cloud
+#      CONFIG_SERVER_URL: http://chat-config:8888
+#      PORT: 8381
+#    depends_on:
+#      - chat-postgres
+#      - chat-config
+#    profiles:
+#      - cloud
+#
+#  subscription:
+#    container_name: subscription
+#    image: subscription
+#    restart: always
+#    ports:
+#      - "8084:8084"
+#    build:
+#      context: subs
+#      dockerfile: Dockerfile
+#    environment:
+#      SPRING_PROFILES_ACTIVE: cloud
+#      CONFIG_SERVER_URL: http://chat-config:8888
+#      PORT: 8084
+#    depends_on:
+#      - chat-postgres
+#      - chat-config
+#    profiles:
+#      - cloud
+#
+#
+#  chat-messenger:
+#    container_name: messenger
+#    image: messenger
+#    restart: always
+#    ports:
+#      - "8382:8382"
+#    build:
+#      context: messenger
+#      dockerfile: Dockerfile
+#    environment:
+#      SPRING_PROFILES_ACTIVE: cloud
+#      CONFIG_SERVER_URL: http://chat-config:8888
+#      PORT: 8382
+#    depends_on:
+#      - chat-postgres
+#      - chat-config
+#    profiles:
+#      - cloud

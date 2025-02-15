@@ -15,7 +15,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: user_id
-                  type: uuid
+                  type: varchar
                   constraints:
                     nullable: false
               - column:
@@ -28,7 +28,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: images
-                  type: BYTEA
+                  type: json
               - column:
                   name: posted_time
                   type: timestamp

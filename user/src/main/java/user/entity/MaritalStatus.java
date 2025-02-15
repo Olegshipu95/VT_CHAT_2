@@ -6,7 +6,7 @@ public enum MaritalStatus {
     MARRIED("MARRIED"),
     DIVORCED("DIVORCED");
 
-    String statusName;
+    final String statusName;
 
     MaritalStatus(String aStatus) {
         statusName = aStatus;

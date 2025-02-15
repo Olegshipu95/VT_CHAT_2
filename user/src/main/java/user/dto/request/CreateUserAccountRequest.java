@@ -1,7 +1,7 @@
 package user.dto.request;
 
-
 import jakarta.validation.constraints.NotBlank;
+import user.entity.Role;
 
 import java.time.LocalDate;
 
@@ -12,9 +12,12 @@ public record CreateUserAccountRequest (
         String surname,
         @NotBlank(message = "Email can't be blank")
         String email,
+        @NotBlank(message = "Password can't be blank")
+        String password,
         String briefDescription,
         String city,
         LocalDate birthday,
-        String logoUrl
+        String logoUrl,
+        Role role
 ) {
 }

@@ -9,11 +9,9 @@ spring:
     user: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
 
-
   cloud:
     config:
       enabled: false
-
 eureka:
   client:
     enabled: false

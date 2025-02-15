@@ -18,5 +18,4 @@ public class ServiceUrlsProperties {
         this.messenger = messenger;
         this.subs = subs;
     }
-
 }

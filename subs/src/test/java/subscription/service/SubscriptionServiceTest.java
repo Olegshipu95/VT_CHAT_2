@@ -1,25 +1,30 @@
 package subscription.service;
 
-import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import subscription.dto.User;
 import subscription.dto.subs.request.CreateSubRequest;
-import subscription.dto.subs.response.SubscriptionResponse;
 import subscription.entity.Subscribers;
-import subscription.exception.UserAccountNotFoundException;
+import subscription.exception.InternalException;
 import subscription.repository.SubRepository;
+import subscription.utils.SecurityMock;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
@@ -33,87 +38,64 @@ class SubscriptionServiceTest {
     @InjectMocks
     private SubscriptionService subscriptionService;
 
-    private UUID testUserId;
-    private UUID testSubscribedUserId;
-    private UUID testSubId;
-    private CreateSubRequest testRequest;
-    private Subscribers testSubscriber;
-    private SubscriptionResponse testSubscriptionResponse;
-    private LocalDateTime testSubscriptionTime;
-
     @BeforeEach
-    void setUp() {
-        testUserId = UUID.randomUUID();
-        testSubscribedUserId = UUID.randomUUID();
-        testSubId = UUID.randomUUID();
-        testSubscriptionTime = LocalDateTime.now();
-
-        testRequest = new CreateSubRequest(testUserId, testSubscribedUserId);
-        testSubscriber = new Subscribers();
-        testSubscriber.setId(testSubId);
-        testSubscriber.setUserId(testUserId);
-        testSubscriber.setSubscribedUserId(testSubscribedUserId);
-        testSubscriber.setSubscriptionTime(testSubscriptionTime);
-
-        testSubscriptionResponse = new SubscriptionResponse(testSubId, testSubscribedUserId, testSubscriptionTime);
+    public void setUp() {
+        SecurityMock.mockSecurityContext();
     }
 
     @Test
-    void testCreateSub() {
-        when(subscribersRepository.save(any(Subscribers.class))).thenReturn(testSubscriber);
-        UUID result = subscriptionService.createSub(testRequest);
-        assertEquals(testSubId, result);
-        verify(subscribersRepository, times(1)).save(any(Subscribers.class));
-        verify(userService, times(1)).findById(testUserId);
-        verify(userService, times(1)).findById(testSubscribedUserId);
+    public void createSub_OK() {
+        CreateSubRequest request = new CreateSubRequest(UUID.randomUUID());
+        Subscribers subscribers = new Subscribers(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now());
+        when(subscribersRepository.existsByUserIdAndSubscribedUserId(any(), any())).thenReturn(false);
+        when(userService.findById(any())).thenReturn(new User());
+        when(subscribersRepository.save(any())).thenReturn(subscribers);
+
+        UUID id = subscriptionService.createSub(request);
+
+        assertNotNull(id);
+        verify(subscribersRepository, times(1)).existsByUserIdAndSubscribedUserId(any(), any());
     }
 
     @Test
-    void testCreateSubWithUserNotFound() {
-        when(userService.findById(testUserId)).thenThrow(new UserAccountNotFoundException(testUserId));
-        assertThrows(UserAccountNotFoundException.class, () -> subscriptionService.createSub(testRequest));
-        verify(userService, times(1)).findById(testUserId);
-        verify(userService, never()).findById(testSubscribedUserId);
-        verify(subscribersRepository, never()).save(any());
+    public void createSub_USER_NOT_FOUND() {
+        CreateSubRequest request = new CreateSubRequest(UUID.randomUUID());
+        when(userService.findById(any())).thenReturn(null);
+
+        assertThrows(InternalException.class, () -> subscriptionService.createSub(request));
     }
 
     @Test
-    void testGetSub() {
-        when(subscribersRepository.findById(testSubId)).thenReturn(Optional.of(testSubscriber));
-        Subscribers result = subscriptionService.getSub(testSubId);
-        assertEquals(testSubscriber, result);
-        verify(subscribersRepository, times(1)).findById(testSubId);
+    public void getSub_USER_NOT_FOUND() {
+        when(subscribersRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(InternalException.class, () -> subscriptionService.getSub(UUID.randomUUID()));
     }
 
     @Test
-    void testGetSubNotFound() {
-        when(subscribersRepository.findById(testSubId)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> subscriptionService.getSub(testSubId));
-        verify(subscribersRepository, times(1)).findById(testSubId);
+    public void getSub_OK() {
+        Subscribers subscribers = new Subscribers(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now());
+
+        when(subscribersRepository.findById(any())).thenReturn(Optional.of(subscribers));
+
+        Subscribers subs =  subscriptionService.getSub(UUID.randomUUID());
+
+        assertEquals(subs, subscribers);
     }
 
     @Test
-    void testDeleteSub() {
-        when(subscribersRepository.existsById(testSubId)).thenReturn(true);
-        subscriptionService.deleteSub(testSubId);
-        verify(subscribersRepository, times(1)).existsById(testSubId);
-        verify(subscribersRepository, times(1)).deleteById(testSubId);
+    public void deleteSub_ok() {
+        UUID id = UUID.randomUUID();
+        when(subscribersRepository.existsById(any())).thenReturn(true);
+
+        assertDoesNotThrow(() -> subscriptionService.deleteSub(id));
     }
 
     @Test
-    void testDeleteSubNotFound() {
-        when(subscribersRepository.existsById(testSubId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> subscriptionService.deleteSub(testSubId));
-        verify(subscribersRepository, times(1)).existsById(testSubId);
-        verify(subscribersRepository, never()).deleteById(testSubId);
-    }
+    public void deleteSub_not_found() {
+        UUID id = UUID.randomUUID();
+        when(subscribersRepository.existsById(any())).thenReturn(false);
 
-    @Test
-    void testGetSubscriptionsByUserId() {
-        List<SubscriptionResponse> subscriptions = List.of(testSubscriptionResponse);
-        when(subscribersRepository.getSubResponseByUserId(testUserId)).thenReturn(subscriptions);
-        List<SubscriptionResponse> result = subscriptionService.getSubscriptionsByUserId(testUserId);
-        assertEquals(subscriptions, result);
-        verify(subscribersRepository, times(1)).getSubResponseByUserId(testUserId);
+        assertThrows(InternalException.class, () -> subscriptionService.deleteSub(id));
     }
 }

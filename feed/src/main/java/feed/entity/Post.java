@@ -1,43 +1,43 @@
 package feed.entity;
 
-import feed.utils.ErrorMessages;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.Getter;
 
 @Data
 @Entity
 @Table(name = "posts")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Post {
+
     @Id
-    @Getter
-    @NotNull(message = ErrorMessages.ID_CANNOT_BE_NULL)
     @Column(name = "id")
     private UUID id;
 
     @Column(name = "user_id")
-    @NotNull(message = ErrorMessages.CHAT_CANNOT_BE_NULL)
-    private UUID userId;
+    private String userId;
 
-    @Getter
     @Column(name = "title")
     private String title;
 
-    @Getter
     @Column(name = "text", nullable = false)
     private String text;
 
-    @Getter
     @Column(name = "images")
-    private byte[] images;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<String> imagesUrls;
 
-    @Getter
     @Column(name = "posted_time", nullable = false)
     private Timestamp postedTime;
-
 }

@@ -1,7 +1,10 @@
 package messenger.dto.chat.response;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class ResponseGettingChats {
     public List<ChatForResponse> response;
 
@@ -9,7 +12,4 @@ public class ResponseGettingChats {
         this.response = response;
     }
 
-    public List<ChatForResponse> getResponse() {
-        return response;
-    }
 }

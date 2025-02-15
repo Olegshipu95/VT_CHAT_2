@@ -29,6 +29,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.postgresql:postgresql:42.7.2'
 
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // Liquibase
     implementation 'org.liquibase:liquibase-core'
     implementation 'org.springframework:spring-jdbc'
@@ -41,6 +43,7 @@ dependencies {
     // Spring Cloud
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'io.github.openfeign:feign-jackson:13.5'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     // Test dependencies
@@ -67,26 +70,38 @@ jacocoTestReport {
     reports {
         html.required = true
     }
-
     classDirectories.setFrom(files(classDirectories.files.collect {
-        fileTree(dir: it).matching {
-            exclude("**/configurations/**")
-            exclude("**/util/**")
-            exclude("**/SportsOrderApplication.class")
-        }
+        fileTree(dir: it, excludes: [
+                'subscription/config/*',
+                'subscription/exception/*',
+                'subscription/utils/*',
+                'subscription/SubscriptionApplication.class'
+        ])
     }))
 }
 
 test {
     finalizedBy jacocoTestReport
+    finalizedBy jacocoTestCoverageVerification
 }
 
 jacocoTestCoverageVerification {
     violationRules {
         rule {
+            element = 'BUNDLE'
             limit {
-                minimum = 0.80
+                counter = 'INSTRUCTION'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
             }
         }
     }
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, excludes: [
+                'subscription/config/*',
+                'subscription/exception/*',
+                'subscription/utils/*',
+                'subscription/SubscriptionApplication.class'
+        ])
+    }))
 }

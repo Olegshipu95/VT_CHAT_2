@@ -1,80 +1,45 @@
 package messenger.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import messenger.utils.ErrorMessages;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "messages")
 public class Message {
+
     @Id
     private UUID id;
+
     @ManyToOne
     @JoinColumn(name = "chat_id", nullable = false)
-    @NotNull(message = ErrorMessages.CHAT_CANNOT_BE_NULL)
     @JsonDeserialize(using = ChatDeserializer.class)
     private Chat chatId;
+
     @JoinColumn(name = "author_id", nullable = false)
-    @NotNull(message = ErrorMessages.USER_CANNOT_BE_NULL)
     private UUID authorId;
+
     @Column(name = "text", nullable = false)
     @NotNull(message = ErrorMessages.TEXT_CANNOT_BE_NULL)
     private String text;
+
     @Column(name = "messaged_time")
     private Timestamp timestamp;
-    @Lob
-    @Column(name = "photo")
-    private byte[] photo;
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public Chat getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(Chat chatId) {
-        this.chatId = chatId;
-    }
-
-    public UUID getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(UUID authorId) {
-        this.authorId = authorId;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Timestamp getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public byte[] getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
-    }
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "photos")
+    private List<String> photos;
 }

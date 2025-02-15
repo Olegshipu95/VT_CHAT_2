@@ -20,5 +20,4 @@ public record UpdateUserInfoRequest(
         String city,
         LocalDate birthday,
         String logoUrl
-) {
-}
+) { }
