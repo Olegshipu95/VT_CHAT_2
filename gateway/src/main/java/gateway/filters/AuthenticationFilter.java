@@ -44,7 +44,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         .header(Config.AUTHORIZATION, bearerToken)
                         .retrieve()
                         .bodyToMono(AuthorizationDetails.class)
-                        .onErrorResume(ex -> Mono.error(new InternalException(HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED)))
+                        .onErrorResume(ex -> Mono.error(new InternalException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED)))
                         .flatMap(response -> {
                             ServerHttpRequest mutableRequest = null;
                             try {

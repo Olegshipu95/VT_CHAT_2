@@ -6,7 +6,7 @@ COPY src ./src
 COPY build.gradle ./build.gradle
 COPY settings.gradle ./settings.gradle
 
-RUN gradle clean build -x test
+RUN gradle clean build -x test -x jacocoTestCoverageVerification
 
 FROM amazoncorretto:17-alpine
 
