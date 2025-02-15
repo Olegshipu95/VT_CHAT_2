@@ -19,7 +19,7 @@ public final class SecurityMock {
 
     public static Authentication getAuthentication() {
         Authentication auth = mock(UsernamePasswordAuthenticationToken.class);
-        lenient().when(auth.getPrincipal()).thenReturn("userId");
+        lenient().when(auth.getPrincipal()).thenReturn("8a256a92-ec71-422c-8394-fb73217d576c");
         lenient().when(auth.getCredentials()).thenReturn("username");
         return auth;
     }

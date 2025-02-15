@@ -7,6 +7,7 @@ public enum ErrorCode {
 
     VALIDATION_FAILED,
 
+    CHAT_NOT_FOUND,
     NOT_FOUND,
     USER_COUNT_ERROR,
     USER_DUPLICATED,

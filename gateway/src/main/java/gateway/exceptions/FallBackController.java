@@ -24,5 +24,4 @@ public class FallBackController {
     public void fallback() {
         throw new InternalException(HttpStatus.SERVICE_UNAVAILABLE, ErrorCode.CIRCUIT_BREAKER_STOP);
     }
-
 }

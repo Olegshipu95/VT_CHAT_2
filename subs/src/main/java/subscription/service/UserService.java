@@ -11,7 +11,7 @@ import java.util.UUID;
 @FeignClient(name = "chat-user-cloud")
 public interface UserService {
 
-    @GetMapping("/{id}")
+    @GetMapping("/accounts/users/{id}")
     @Headers("Content-Type: application/json")
     User findById(@PathVariable UUID id);
 }

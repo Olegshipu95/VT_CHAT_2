@@ -26,12 +26,10 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "chat_id", nullable = false)
-    @NotNull(message = ErrorMessages.CHAT_CANNOT_BE_NULL)
     @JsonDeserialize(using = ChatDeserializer.class)
     private Chat chatId;
 
     @JoinColumn(name = "author_id", nullable = false)
-    @NotNull(message = ErrorMessages.USER_CANNOT_BE_NULL)
     private UUID authorId;
 
     @Column(name = "text", nullable = false)

@@ -1,25 +1,25 @@
 package feed.controller;
 
 import feed.dto.request.CreatePostRequest;
-import feed.dto.response.FeedResponse;
 import feed.entity.Post;
 import feed.service.FeedService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -32,23 +32,23 @@ public class FeedController {
 
     @PageableAsQueryParam
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getAllPostsByUserId(
+    @ResponseStatus(HttpStatus.OK)
+    public Flux<Post> getAllPostsByUserId(
         @PathVariable String userId,
         @Schema(hidden = true) @PageableDefault(size = 50) Pageable pageable
     ) {
-        Page<Post> response = feedService.getFeedByUserId(userId, pageable);
-        return ResponseEntity.ok(response);
+        return feedService.getFeedByUserId(userId, pageable);
     }
 
     @PostMapping
-    public ResponseEntity<UUID> createPost(@Valid @RequestBody CreatePostRequest createPostRequest) {
-        UUID id = feedService.createFeed(createPostRequest);
-        return new ResponseEntity<>(id, HttpStatus.CREATED);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<UUID> createPost(@Valid @RequestBody CreatePostRequest createPostRequest) {
+        return feedService.createFeed(createPostRequest);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePost(@PathVariable UUID id) {
-        feedService.deletePost(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> deletePost(@PathVariable UUID id) {
+        return feedService.deletePost(id);
     }
 }

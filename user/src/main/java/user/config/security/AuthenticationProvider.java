@@ -4,11 +4,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import user.entity.Role;
+import user.exception.ErrorCode;
+import user.exception.InternalException;
 
 import javax.crypto.SecretKey;
 
@@ -36,9 +39,13 @@ public class AuthenticationProvider {
     }
 
     public boolean isValid(String token) {
-        var jwtParser = Jwts.parser().verifyWith(key).build();
-        var claims = jwtParser.parseSignedClaims(token);
-        return claims.getPayload().getExpiration().after(new Date());
+        try {
+            var jwtParser = Jwts.parser().verifyWith(key).build();
+            var claims = jwtParser.parseSignedClaims(token);
+            return claims.getPayload().getExpiration().after(new Date());
+        } catch (Exception e) {
+            throw new InternalException(HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED);
+        }
     }
 
     public String createAccessToken(UUID userId, String username, Set<Role> roles) {

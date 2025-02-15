@@ -16,12 +16,17 @@ import messenger.entity.UsersChats;
 import messenger.exception.ErrorCode;
 import messenger.exception.InternalException;
 import messenger.repository.chat.ChatRepository;
+import messenger.utils.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +57,7 @@ public class ChatService {
             .orElseThrow(() -> new InternalException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND));
     }
 
+    @Transactional
     public UUID createChat(CreateChatRequest createChatRequest) {
         Chat chatForSave = new Chat();
         chatForSave.setId(UUID.randomUUID());
@@ -81,9 +87,12 @@ public class ChatService {
         return savedChat.getId();
     }
 
-    public UUID sendMessage(Message message) {
-        UUID chatId = message.getChatId().getId();
+    @Transactional
+    public UUID sendMessage(UUID chatId, Message message) {
+        message.setChatId(chatRepository.findById(chatId).orElseThrow(() -> new InternalException(HttpStatus.NOT_FOUND, ErrorCode.CHAT_NOT_FOUND)));
         message.setId(UUID.randomUUID());
+        message.setAuthorId(UUID.fromString(SecurityContextHolder.getUserId()));
+        message.setTimestamp(Timestamp.valueOf(LocalDateTime.now()));
         messageService.save(message);
         MessageForResponse messageForResponse = new MessageForResponse(message);
         List<MessageForResponse> messages = chatMessages.computeIfAbsent(chatId, k -> new ArrayList<>());
@@ -96,6 +105,7 @@ public class ChatService {
         return message.getId();
     }
 
+    @Transactional
     public DeferredResult<MessageForResponse> subscribeOnChat(UUID chatId) {
         DeferredResult<MessageForResponse> result = new DeferredResult<>(600000L);
         chatClients.computeIfAbsent(chatId, k -> new ConcurrentLinkedQueue<>()).add(result);
@@ -109,7 +119,9 @@ public class ChatService {
     }
 
 
+    @Transactional
     public ResponseSearchChat getUsersChats(UUID userId, String request, Long pageNumber, Long countChatsOnPage) {
+        if (request == null) request = "";
         List<UUID> userChats = usersChatsService.findByUserId(userId).orElseThrow(() -> new InternalException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND)).getChats();
         List<Chat> listOfChats = chatRepository.findByNameContainingAndIdIn(userChats, request, PageRequest.of(pageNumber.intValue(), countChatsOnPage.intValue()))
             .stream()
@@ -136,13 +148,16 @@ public class ChatService {
         return responseSearchChat;
     }
 
-    public ResponseSearchMessage searchMessage(UUID chatId, String request, Long pageNumber, Long countMessagesOnPage) {
-        return new ResponseSearchMessage(messageService.findByTextContainingAndChatId(chatId, request, PageRequest.of(pageNumber.intValue(), countMessagesOnPage.intValue()))
+    @Transactional
+    public ResponseSearchMessage searchMessage(UUID chatId, String request, Pageable pageRequest) {
+        if (request == null) request = "";
+        return new ResponseSearchMessage(messageService.findByTextContainingAndChatId(chatId, request, PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize()))
             .stream()
             .map(MessageForResponse::new)
             .collect(Collectors.toList()));
     }
 
+    @Transactional
     public void deleteChat(UUID chatId) {
         List<UUID> usersChatsIds = usersChatsService.findIdsByChatId(chatId);
         for (UUID usersChatsId : usersChatsIds) {
@@ -153,6 +168,7 @@ public class ChatService {
         chatRepository.deleteById(chatId);
     }
 
+    @Transactional
     public ResponseGettingChats getAllChatsByUserId(UUID userId, Long pageNumber, Long countChatsOnPage) {
         List<UUID> usersChats = usersChatsService.findByUserId(userId).orElseThrow(() -> new InternalException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND)).getChats();
         int startIndex = (int) (pageNumber * countChatsOnPage);
@@ -183,6 +199,7 @@ public class ChatService {
         return responseGettingChats;
     }
 
+    @Transactional
     public ResponseGettingMessages getAllMessagesByChatId(UUID chatId, Long pageNumber, Long countMessagesOnPage) {
         Page<Message> pageOfMessages = messageService.findByChatId(chatId, PageRequest.of(pageNumber.intValue(), countMessagesOnPage.intValue()));
         return new ResponseGettingMessages(

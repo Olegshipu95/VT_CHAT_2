@@ -3,6 +3,7 @@ package subscription.service;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import subscription.dto.User;
 import subscription.dto.subs.request.CreateSubRequest;
 import subscription.dto.subs.response.SubscriptionResponse;
 import subscription.entity.Subscribers;
@@ -27,6 +28,7 @@ public class SubscriptionService {
 
     private final SubRepository subscribersRepository;
 
+    @Transactional
     public UUID createSub(CreateSubRequest sub) {
         String userId = SecurityContextHolder.getUserId();
         log.debug("CREATE: start addSubscriber with userId: {} subscribedUserId: {}", userId, sub.getSubscribedUserId());
@@ -68,12 +70,15 @@ public class SubscriptionService {
 
     private void validateUsersExist(UUID subscribedUserId) {
         try {
-            if (userService.findById(subscribedUserId) == null) {
+            User user = userService.findById(subscribedUserId);
+            if (user == null) {
                 log.info("Subscribed User ID {} does not exist", subscribedUserId);
                 throw new InternalException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND);
             }
+            log.info("User email - {}", user.getEmail());
         } catch (FeignException e){
             log.warn("Ошибка при вызове Feign-клиента: {}", e.getMessage());
+            throw new InternalException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
         }
     }
 }

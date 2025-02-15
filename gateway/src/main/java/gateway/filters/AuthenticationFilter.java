@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gateway.configurations.ServiceUrlsProperties;
 import gateway.dto.AuthorizationDetails;
+import gateway.exceptions.ErrorCode;
+import gateway.exceptions.InternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -41,6 +44,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         .header(Config.AUTHORIZATION, bearerToken)
                         .retrieve()
                         .bodyToMono(AuthorizationDetails.class)
+                        .onErrorResume(ex -> Mono.error(new InternalException(HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED)))
                         .flatMap(response -> {
                             ServerHttpRequest mutableRequest = null;
                             try {

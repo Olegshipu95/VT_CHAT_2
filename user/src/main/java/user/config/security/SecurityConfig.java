@@ -36,7 +36,8 @@ public class SecurityConfig {
                     "/webjars/**",
                     "/swagger-ui/**",
                     "chat-user-cloud/v3/api-docs/**",
-                    "/auth/tokens/**"
+                    "/auth/tokens/**",
+                    "/accounts/users/**"
                 ).permitAll();
                 exchange.pathMatchers("/**").authenticated();
             })
